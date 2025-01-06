@@ -1,0 +1,31 @@
+name: tailscale-rdesktop
+on:
+  workflow_dispatch:
+
+jobs:
+  rdesktop-test:
+    runs-on: ubuntu-24.04
+    
+    steps:
+      - name: Run system container with `podman`
+        run: |
+          podman run -d --name obsidian ghcr.io/spotsnel-apps/obsidian:latest
+      - name: Tailscale setup (root)
+        run: |
+          until podman exec obsidian tailscale up --auth-key ${TAILSCALE_AUTHKEY}
+          do
+              sleep 0.1
+          done
+          podman exec obsidian tailscale set --ssh
+          podman exec obsidian tailscale set --hostname github-${HOSTNAME}
+        env:
+          TAILSCALE_AUTHKEY: ${{ secrets.TAILSCALE_AUTHKEY}}
+      - name: Hang around
+        run: |
+          until podman exec obsidian systemctl is-active kasmvncserver
+          do
+               sleep 1
+          done
+          IP=`podman exec obsidian tailscale ip -4`
+          echo "Open in your web browser: https://${IP}:8444"
+          sleep infinity

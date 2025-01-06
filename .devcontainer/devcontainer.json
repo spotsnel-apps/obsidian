@@ -1,0 +1,5 @@
+{
+    "name": "Obsidian remote desktop environment",
+    "image": "ghcr.io/spotsnel-apps/obsidian:latest",
+    "runArgs": [ "--cap-add=NET_ADMIN", "--cap-add=NET_RAW", "--device=/dev/net/tun" ]
+}

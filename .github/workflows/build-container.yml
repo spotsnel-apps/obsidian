@@ -1,0 +1,22 @@
+name: build container
+run-name: building container
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    permissions:
+      contents: read
+      packages: write
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - name: Run podman build - Obsidian
+        run: podman build -t ghcr.io/spotsnel-apps/obsidian:latest -f Containerfile .
+      - name: Push image to ghcr.io - Obsidian
+        run: podman push --creds=${{ github.actor }}:${{ secrets.GITHUB_TOKEN }} ghcr.io/spotsnel-apps/obsidian:latest
